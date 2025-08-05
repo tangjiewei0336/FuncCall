@@ -1,6 +1,6 @@
 # FuncCall - 函数调用项目
 
-这是一个基于阿里云通义千问的智能对话系统，支持函数调用功能。
+这是一个基于阿里云通义千问的智能对话系统，使用自定义提示词拼接和输出解析的方式实现工具调用功能。
 
 ## 项目结构
 
@@ -10,24 +10,30 @@ FuncCall/
 │   ├── __init__.py
 │   ├── weather_tool.py      # 天气查询工具
 │   ├── time_tool.py         # 时间查询工具
+│   ├── calculator_tool.py   # 计算器工具
+│   ├── data_query_tool.py   # 数据查询工具
 │   └── tool_registry.py     # 工具注册表
 ├── models/                   # 模型模块
 │   ├── __init__.py
-│   └── llm_client.py        # 大语言模型客户端
+│   └── simple_llm_client.py # 简单LLM客户端
 ├── utils/                    # 工具函数模块
 │   ├── __init__.py
-│   └── message_handler.py   # 消息处理工具
+│   ├── message_handler.py   # 消息处理工具
+│   ├── prompt_builder.py    # 提示词构建器
+│   └── tool_parser.py       # 工具调用解析器
 ├── tests/                    # 测试模块
 │   ├── __init__.py
-│   ├── test_tools.py        # 工具测试
-│   └── test_message_handler.py # 消息处理测试
+│   ├── test_new_tools.py    # 新工具测试
+│   └── test_tool_calls.py   # 工具调用测试
 ├── conversation_manager.py   # 对话管理器
 ├── main.py                   # 主程序入口
+├── demo_tool_calls.py        # 演示脚本
 └── README.md                # 项目说明
 ```
 
 ## 功能特性
 
+- **自定义工具调用**: 不使用原生tool功能，通过提示词拼接和输出解析实现
 - **模块化设计**: 将不同功能分离到独立模块中，便于维护和扩展
 - **工具注册系统**: 支持动态注册和管理工具
 - **多轮工具调用**: 支持工具之间的依赖关系，可进行多轮调用直到完成任务
@@ -61,8 +67,8 @@ python3 main.py
 ### 运行演示
 
 ```bash
-# 运行多轮工具调用演示
-python3 demo_multi_tool_calls.py
+# 运行工具调用演示
+python3 demo_tool_calls.py
 ```
 
 ### 运行测试
@@ -72,9 +78,8 @@ python3 demo_multi_tool_calls.py
 python3 -m unittest discover tests
 
 # 运行特定测试
-python3 -m unittest tests.test_tools
-python3 -m unittest tests.test_message_handler
 python3 -m unittest tests.test_new_tools
+python3 -m unittest tests.test_tool_calls
 ```
 
 ## 添加新工具
@@ -128,25 +133,37 @@ self.register_tool(
 )
 ```
 
-## 多轮工具调用示例
+## 自定义工具调用示例
+
+### 工具调用格式
+模型输出示例：
+```
+我来帮您查询时间。
+
+<tool_call>
+工具名称：get_current_time
+参数：{}
+</tool_call>
+```
 
 ### 简单示例
 用户：请帮我计算技术部员工的平均工资
 
 系统处理流程：
-1. 第一轮：调用 `query_data` 工具查询技术部员工信息
-2. 第二轮：调用 `calculate` 工具计算平均工资
-3. 第三轮：模型总结结果并返回最终答案
+1. 构建包含工具信息的提示词
+2. 模型输出工具调用格式
+3. 解析并执行 `query_data` 工具查询技术部员工信息
+4. 解析并执行 `calculate` 工具计算平均工资
+5. 模型总结结果并返回最终答案
 
 ### 复杂示例
 用户：请分析一下我们的销售情况，包括总销售额、平均订单金额，并计算利润率
 
 系统处理流程：
-1. 第一轮：调用 `query_data` 工具查询订单数据
-2. 第二轮：调用 `calculate` 工具计算总销售额
-3. 第三轮：调用 `calculate` 工具计算平均订单金额
-4. 第四轮：调用 `calculate` 工具计算利润率
-5. 第五轮：模型综合分析并返回完整报告
+1. 构建包含工具信息的提示词
+2. 模型输出多个工具调用
+3. 依次执行：`query_data` → `calculate` → `calculate` → `calculate`
+4. 模型综合分析并返回完整报告
 
 ## 项目优势
 
@@ -155,6 +172,7 @@ self.register_tool(
 3. **可测试性**: 每个模块都有独立的测试，确保代码质量
 4. **可重用性**: 组件化设计使得代码可以在不同场景中重用
 5. **智能性**: 支持工具间的依赖关系，能够处理复杂的多步骤任务
+6. **灵活性**: 完全自定义的工具调用方式，不依赖特定的API格式
 
 ## 注意事项
 

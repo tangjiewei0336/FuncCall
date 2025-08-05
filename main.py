@@ -1,15 +1,16 @@
 """
 主程序入口
+使用提示词拼接和输出解析的方式实现工具调用
 """
 
-from conversation_manager import ConversationManager
+from conversation_manager import CustomConversationManager
 
 
 def main():
     """主函数"""
     try:
-        # 创建对话管理器
-        conversation_manager = ConversationManager()
+        # 创建自定义对话管理器
+        conversation_manager = CustomConversationManager()
         
         # 开始对话
         conversation_manager.start_conversation()
