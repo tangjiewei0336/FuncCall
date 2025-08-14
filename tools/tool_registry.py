@@ -6,7 +6,7 @@
 from .weather_tool import get_weather_tool_config
 from .time_tool import get_time_tool_config
 from .calculator_tool import get_calculator_tool_config
-from .data_query_tool import get_data_query_tool_config
+from .knowledge_base_tool import get_knowledge_base_tool_config
 
 
 class ToolRegistry:
@@ -39,12 +39,12 @@ class ToolRegistry:
             function=self._get_calculator_function,
             config=get_calculator_tool_config()
         )
-        
-        # 注册数据查询工具
+
+        # 注册知识库查询工具
         self.register_tool(
-            name="query_data",
-            function=self._get_data_query_function,
-            config=get_data_query_tool_config()
+            name="query_knowledge_base",
+            function=self._get_knowledge_base_function,
+            config=get_knowledge_base_tool_config()
         )
     
     def _get_weather_function(self, **kwargs):
@@ -61,11 +61,12 @@ class ToolRegistry:
         """获取计算器工具函数"""
         from .calculator_tool import calculate
         return calculate(**kwargs)
+
     
-    def _get_data_query_function(self, **kwargs):
-        """获取数据查询工具函数"""
-        from .data_query_tool import query_data
-        return query_data(**kwargs)
+    def _get_knowledge_base_function(self, **kwargs):
+        """获取知识库查询工具函数"""
+        from .knowledge_base_tool import query_knowledge_base
+        return query_knowledge_base(**kwargs)
     
     def register_tool(self, name: str, function, config: dict):
         """
